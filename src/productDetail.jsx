@@ -1,88 +1,68 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './productDetail.css';
-import Colors from './components/Colors'
+import Colors from './components/Colors';
 import DetailsThumb from './components/DetailsThumb';
-import "./Header.css";
 import Header from "./Header";
-class App extends React.Component{
+import "./Header.css";
+import { useParams } from 'react-router-dom';
 
-  state = {
-    products: [
-      {
-        "_id": "1",
-        "title": "iPhone 9",
-        "src": [
-          "https://cdn.dummyjson.com/product-images/1/1.jpg",
-          "https://cdn.dummyjson.com/product-images/1/2.jpg",
-          "https://cdn.dummyjson.com/product-images/1/3.jpg",
-          "https://cdn.dummyjson.com/product-images/1/4.jpg",
-          "https://cdn.dummyjson.com/product-images/1/thumbnail.jpg"
-        
-          ],
-        "description": "An apple mobile which is nothing like apple",
-        "content":"smartphones",
-        "price": 549,
-        "discount":12.96,
-        "colors":["red","black","crimson","teal"],
-        "count": 10
-      }
-    ],
-    index: 0
-  };
-  
+function App() {
+  const [products, setProducts] = useState({});
+  const [index, setIndex] = useState(0);
+  const { id } = useParams()
+  const savedId = id;
 
-  myRef = React.createRef();
+  useEffect(() => {
+    console.log("productId: " + id);
+    fetchProdDetails()
+  }, [id])
 
-  handleTab = index =>{
-    this.setState({index: index})
-    const images = this.myRef.current.children;
-    for(let i=0; i<images.length; i++){
-      images[i].className = images[i].className.replace("active", "");
-    }
-    images[index].className = "active";
-  };
-
-  componentDidMount(){
-    const {index} = this.state;
-    this.myRef.current.children[index].className = "active";
+  const fetchProdDetails = async () => {
+    const searchResponse = await fetch(`https://dummyjson.com/products/${savedId}`);
+    const searchResult = await searchResponse.json();
+    console.log(searchResult)
+    setProducts(searchResult);
   }
 
+  const handleThumbClick = (index) => {
+    // Update the main image with the thumbnail at the clicked index
+    setIndex(index);
+  }
 
-  render(){
-    const {products, index} = this.state;
-    return(
-      <div>
+  return (
+    <div>
       <Header />
       <div className="app">
-        {
-          
-          products.map(item =>(
-            <div className="details" key={item._id}>
-              <div className="big-img">
-                <img src={item.src[index]} alt=""/>
-              </div>
-
-              <div className="box">
-                <div className="rowise">
-                  <h2>{item.title}</h2>
-                  <span>Rs.{item.price}</span>
-                </div>
-                <Colors colors={item.colors} />
-                <p><b>Discount </b>{item.discount}%</p>
-                <p>{item.description}</p>
-                <p>{item.content}</p>
-
-                <DetailsThumb images={item.src} tab={this.handleTab} myRef={this.myRef} />
-                <button className="cart"  style={{ backgroundColor: '#cd9042', color:'black', borderRadius:'100px' }}>Add to cart</button>
-
-              </div>
+        <div className="details" key={products?._id}>
+          {products?.images ? 
+          <div className="big-img">
+            {/* Change the src attribute to use the image at the current index */}
+            <img src={products?.images[index]} alt="" />
+          </div> : <></>
+          }
+          <div className="box">
+            <div className="rowise">
+              <h2>{products?.title}</h2>
+              <span>Rs.{products?.price}</span>
             </div>
-          ))
-        }
+            <p>
+              <b>Discount </b>
+              {products?.discountPercentage}%
+            </p>
+            <p>{products?.description}</p>
+            <p>{products?.brand}</p>
+            {/* Pass the handleThumbClick function to DetailsThumb */}
+            {
+              products?.images ?
+                <DetailsThumb images={products?.images} handleThumbClick={handleThumbClick} /> :
+                <></>
+            }
+            <button className="cart" style={{ backgroundColor: '#cd9042', color: 'black', borderRadius: '100px' }}>Add to cart</button>
+          </div>
+        </div>
       </div>
-      </div>
-    );
-  };
+    </div>
+  );
 }
 
 export default App;
