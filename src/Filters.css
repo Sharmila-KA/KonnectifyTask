@@ -1,0 +1,18 @@
+/* Filters.css */
+/* Styling for the sidebar container */
+.sidebar {
+  padding: 20px;
+  background-color: #f2f2f2;
+}
+
+/* Container for input range components */
+.input-container {
+  margin-bottom: 20px; /* Adjust spacing between input range components */
+}
+
+/* Styling for the labels */
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
